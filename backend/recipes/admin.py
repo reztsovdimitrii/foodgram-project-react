@@ -4,8 +4,8 @@
 
 from django.contrib import admin
 
-from .models import (Cart, Favorite, Subscribe, Ingredient, IngredientRecipe,
-                     Recipe, Tag, TagRecipe)
+from .models import (Cart, Favorite, Ingredient, IngredientRecipe, Recipe,
+                     Subscribe, Tag, TagRecipe)
 
 
 class IngredientRecipeInline(admin.TabularInline):

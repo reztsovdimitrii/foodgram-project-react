@@ -3,12 +3,9 @@
 """
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Subscribe, Tag, TagRecipe)
 from rest_framework import serializers
-
-from recipes.models import (
-    Cart, Favorite, Ingredient, IngredientRecipe,
-    Recipe, Subscribe, Tag, TagRecipe
-)
 from users.models import User
 
 
@@ -28,8 +25,7 @@ class CommonSubscribed(metaclass=serializers.SerializerMetaclass):
         if Subscribe.objects.filter(
                 user=request.user, following__id=obj.id).exists():
             return True
-        else:
-            return False
+        return False
 
 
 class CommonRecipe(metaclass=serializers.SerializerMetaclass):
@@ -50,8 +46,7 @@ class CommonRecipe(metaclass=serializers.SerializerMetaclass):
         if Favorite.objects.filter(user=request.user,
                                    recipe__id=obj.id).exists():
             return True
-        else:
-            return False
+        return False
 
     def get_is_in_shopping_cart(self, obj):
         """
@@ -63,8 +58,7 @@ class CommonRecipe(metaclass=serializers.SerializerMetaclass):
         if Cart.objects.filter(user=request.user,
                                recipe__id=obj.id).exists():
             return True
-        else:
-            return False
+        return False
 
 
 class CommonCount(metaclass=serializers.SerializerMetaclass):
@@ -272,8 +266,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
             text=text,
             cooking_time=cooking_time,
         )
-        recipe = self.add_tags_and_ingredients(tags_data, ingredients, recipe)
-        return recipe
+        return self.add_tags_and_ingredients(tags_data, ingredients, recipe)
 
     def update(self, instance, validated_data):
         """
