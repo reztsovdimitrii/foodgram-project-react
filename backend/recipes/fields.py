@@ -9,7 +9,6 @@ class HexColorField(models.CharField):
         kwargs.setdefault('max_length', 7)
         super().__init__(*args, **kwargs)
         self.validators.append(
-            #    regex=r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
             validators.RegexValidator(
                 regex=r'#([a-fA-F0-9]{6})',
                 message=_('Введите корректное значение HEX кода цвета'),
