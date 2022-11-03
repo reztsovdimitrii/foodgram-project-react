@@ -8,6 +8,7 @@ coreschema==0.0.4
 cryptography==36.0.1
 defusedxml==0.7.1
 Django==3.2.6
+django-cors-headers==3.11.0
 django-colorfield==0.6.3
 django-extra-fields==3.0.2
 django-filter==21.1
