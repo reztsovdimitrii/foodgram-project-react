@@ -3,9 +3,10 @@
 """
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Subscribe, Tag, TagRecipe)
-from rest_framework import serializers
 from users.models import User
 
 
@@ -22,10 +23,8 @@ class CommonSubscribed(metaclass=serializers.SerializerMetaclass):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        if Subscribe.objects.filter(
-                user=request.user, following__id=obj.id).exists():
-            return True
-        return False
+        return Subscribe.objects.filter(
+            user=request.user, following__id=obj.id).exists()
 
 
 class CommonRecipe(metaclass=serializers.SerializerMetaclass):
@@ -43,10 +42,8 @@ class CommonRecipe(metaclass=serializers.SerializerMetaclass):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        if Favorite.objects.filter(user=request.user,
-                                   recipe__id=obj.id).exists():
-            return True
-        return False
+        return Favorite.objects.filter(
+            user=request.user, recipe__id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         """
@@ -55,10 +52,8 @@ class CommonRecipe(metaclass=serializers.SerializerMetaclass):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        if Cart.objects.filter(user=request.user,
-                               recipe__id=obj.id).exists():
-            return True
-        return False
+        return Cart.objects.filter(
+            user=request.user, recipe__id=obj.id).exists()
 
 
 class CommonCount(metaclass=serializers.SerializerMetaclass):
@@ -85,7 +80,6 @@ class RegistrationSerializer(UserCreateSerializer, CommonSubscribed):
         model = User
         fields = ('id', 'username', 'email', 'first_name',
                   'last_name', 'is_subscribed', 'password')
-        write_only_fields = ('password',)
         read_only_fields = ('id',)
         extra_kwargs = {'is_subscribed': {'required': False}}
 
@@ -157,6 +151,12 @@ class IngredientAmountRecipeSerializer(serializers.ModelSerializer):
         model = IngredientRecipe
         fields = ('id', 'amount')
 
+    def validate_amount(self, value):
+        if int(value) == 0:
+            raise serializers.ValidationError(
+                'Количество должно быть больше 0!')
+        return value
+
 
 class RecipeSerializer(serializers.ModelSerializer,
                        CommonRecipe):
@@ -202,16 +202,16 @@ class RecipeSerializerPost(serializers.ModelSerializer,
                   'ingredients', 'tags', 'cooking_time',
                   'is_in_shopping_cart', 'is_favorited')
 
-    def validate_ingredients(self, value):
+    def validate(self, data):
         """
         Метод валидации продуктов в рецепте.
         """
         ingredients_list = []
-        ingredients = value
+        ingredients = data['ingredients']
         for ingredient in ingredients:
-            if ingredient['amount'] < 1:
+            if ingredient['amount'] == 0:
                 raise serializers.ValidationError(
-                    'Количество должно быть равным или больше 1!')
+                    'Количество должно быть больше 0!')
             id_to_check = ingredient['ingredient']['id']
             ingredient_to_check = Ingredient.objects.filter(id=id_to_check)
             if not ingredient_to_check.exists():
@@ -221,7 +221,26 @@ class RecipeSerializerPost(serializers.ModelSerializer,
                 raise serializers.ValidationError(
                     'Данные продукты повторяются в рецепте!')
             ingredients_list.append(ingredient_to_check)
-        return value
+
+        tags = data['tags']
+        if not tags:
+            raise serializers.ValidationError({
+                'Нужно выбрать хотя бы один тэг!'
+            })
+        tags_list = []
+        for tag in tags:
+            if tag in tags_list:
+                raise serializers.ValidationError({
+                    'Тэги должны быть уникальными!'
+                })
+            tags_list.append(tag)
+
+        cooking_time = data['cooking_time']
+        if int(cooking_time) <= 0:
+            raise serializers.ValidationError({
+                'Время приготовления должно быть больше 0!'
+            })
+        return data
 
     def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
         """
