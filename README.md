@@ -154,7 +154,7 @@ sudo docker-compose up -d --build
 * Админ панель доступна по http://158.160.2.218/admin/ 
     - Логин от админ учетки:
     ```
-    admin
+    admin@admin.com
     ```
     - Пароль от админ учетки:
     ```
