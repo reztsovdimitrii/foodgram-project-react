@@ -98,16 +98,9 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-
-
-class FavoriteSerializer(serializers.Serializer):
-    """
-    Создание сериализатора избранных рецептов.
-    """
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)
+        extra_kwargs = {'name': {'required': False},
+                        'slug': {'required': False},
+                        'color': {'required': False}}
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -117,6 +110,8 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
+        extra_kwargs = {'name': {'required': False},
+                        'measurement_unit': {'required': False}}
 
 
 class IngredientAmountSerializer(serializers.ModelSerializer):
@@ -206,7 +201,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
         Метод валидации продуктов в рецепте.
         """
         ingredients_list = []
-        ingredients = data['ingredients']
+        ingredients = data['ingredientrecipes']
         for ingredient in ingredients:
             if ingredient['amount'] == 0:
                 raise serializers.ValidationError(
@@ -342,13 +337,3 @@ class SubscriptionSerializer(serializers.ModelSerializer,
         else:
             queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
         return RecipeMinifieldSerializer(queryset, many=True).data
-
-
-class CartSerializer(serializers.Serializer):
-    """
-    Создание сериализатора корзины.
-    """
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)
