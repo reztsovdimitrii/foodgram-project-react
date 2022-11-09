@@ -1,43 +1,40 @@
+from colorfield.fields import ColorField
 from django.core.validators import MinValueValidator
 from django.db import models
-from users.models import User
 
-from .fields import HexColorField
+from users.models import User
 
 
 class Tag(models.Model):
     """
-    Модель тегов.
-    name - название тега
-    color - HEX-код цвета
-    slug - идентификатор в URL.
+    Создание модели тэгов.
     """
     name = models.CharField(
+        max_length=200,
         verbose_name='Название',
-        max_length=40,
-        unique=True,
-        null=False,
-        help_text='Название тега',
-    )
-    color = HexColorField(
-        verbose_name='HEX-код цвета',
-        unique=True,
-        null=True,
-        help_text='Выберите цвет',
-    )
+        help_text='Введите название тега')
+    color = ColorField(
+        format='hex',
+        verbose_name='Цвет',
+        help_text='Введите цвет тега')
     slug = models.SlugField(
-        verbose_name='Адрес',
+        max_length=200,
         unique=True,
-        help_text='Придумайте уникальный URL адрес для тега',
-    )
+        verbose_name='Текстовый идентификатор тега',
+        help_text='Введите текстовый идентификатор тега')
 
     class Meta:
-        ordering = '-id',
+        """
+        Мета параметры модели.
+        """
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.name
+        """"
+        Метод строкового представления модели.
+        """
+        return self.slug
 
 
 class Ingredient(models.Model):
@@ -46,14 +43,12 @@ class Ingredient(models.Model):
     """
     name = models.CharField(
         max_length=200,
-        verbose_name='Название продукта',
-        help_text='Введите название продуктов'
-    )
+        verbose_name='Название',
+        help_text='Введите название продуктов')
     measurement_unit = models.CharField(
         max_length=200,
         verbose_name='Единицы измерения',
-        help_text='Введите единицы измерения'
-    )
+        help_text='Введите единицы измерения')
 
     class Meta:
         """
@@ -114,7 +109,8 @@ class Recipe(models.Model):
         through='IngredientRecipe',
         related_name='recipes',
         verbose_name='Продукты в рецепте',
-        help_text='Выберите продукты рецепта')
+        help_text='Выберите продукты рецепта'
+    )
 
     class Meta:
         """

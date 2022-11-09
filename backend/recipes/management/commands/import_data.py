@@ -1,6 +1,7 @@
 import csv
 
 from django.core.management.base import BaseCommand
+
 from recipes.models import Ingredient, Tag
 
 
@@ -20,11 +21,13 @@ class Command(BaseCommand):
                         name=name,
                         measurement_unit=measurement_unit
                     )
+
                 except Exception as error_ingredient:
                     print(
                         f'упали на разборе строки продукта {name}:'
                         f' {error_ingredient}'
                     )
+            print('Все данные модели Ingredients загружены')
         # import Tag model
         path = './data/tags.csv'
         with open(path, 'r', newline='', encoding='utf-8') as data:
@@ -41,3 +44,4 @@ class Command(BaseCommand):
                     )
                 except Exception as error_tag:
                     print(f'упали на разборе строки тега {name}: {error_tag}')
+            print('Все данные модели Tags загружены')

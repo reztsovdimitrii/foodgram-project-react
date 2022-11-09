@@ -4,13 +4,15 @@ from django.db.models import Sum
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
-                            Recipe, Subscribe, Tag)
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
+
+from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
+                            Recipe, Subscribe, Tag)
 from users.models import User
 
 from .filters import IngredientSearchFilter, RecipeFilters
+from .permissions import AuthorOrAdmin, ReadOnly
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           RecipeSerializerPost, RegistrationSerializer,
                           SubscriptionSerializer, TagSerializer)
@@ -84,9 +86,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     Вьюсет обработки моделей рецептов.
     """
     queryset = Recipe.objects.all()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [AuthorOrAdmin]
     filter_class = RecipeFilters
     filter_backends = [DjangoFilterBackend]
+
+    def get_permissions(self):
+        if self.action == "retrieve":
+            return (ReadOnly(),)
+        return super().get_permissions()
 
     def perform_create(self, serializer):
         """

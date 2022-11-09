@@ -3,9 +3,10 @@
 """
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
+
 from recipes.models import (Cart, Favorite, Ingredient, IngredientRecipe,
                             Recipe, Subscribe, Tag, TagRecipe)
-from rest_framework import serializers
 from users.models import User
 
 
@@ -201,6 +202,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
         Метод валидации продуктов в рецепте.
         """
         ingredients_list = []
+        print(data)
         ingredients = data['ingredientrecipes']
         for ingredient in ingredients:
             if ingredient['amount'] == 0:

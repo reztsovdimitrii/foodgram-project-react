@@ -15,6 +15,7 @@ class IngredientRecipeInline(admin.TabularInline):
     """
     model = IngredientRecipe
     extra = 0
+    min_num = 1
 
 
 class TagRecipeInline(admin.TabularInline):
@@ -24,6 +25,7 @@ class TagRecipeInline(admin.TabularInline):
     """
     model = TagRecipe
     extra = 0
+    min_num = 1
 
 
 @admin.register(Ingredient)
@@ -76,7 +78,7 @@ class RecipeAdmin(admin.ModelAdmin):
     Параметры админ зоны рецептов.
     """
 
-    inlines = (IngredientRecipeInline, TagRecipeInline,)
+    inlines = [IngredientRecipeInline, TagRecipeInline]
     list_display = ('name', 'author', 'cooking_time',
                     'id', 'count_favorite', 'pub_date')
     search_fields = ('name', 'author', 'tags')
