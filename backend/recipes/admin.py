@@ -8,7 +8,15 @@ from .models import (Cart, Favorite, Ingredient, IngredientRecipe, Recipe,
                      Subscribe, Tag, TagRecipe)
 
 
-class IngredientRecipeInline(admin.TabularInline):
+class MinValidatedInlineMixIn:
+    validate_min = True
+
+    def get_formset(self, *args, **kwargs):
+        return super().get_formset(
+            validate_min=self.validate_min, *args, **kwargs)
+
+
+class IngredientRecipeInline(MinValidatedInlineMixIn, admin.TabularInline):
     """
     Параметры настроек админ зоны
     модели ингредиентов в рецепте.
@@ -16,9 +24,10 @@ class IngredientRecipeInline(admin.TabularInline):
     model = IngredientRecipe
     extra = 0
     min_num = 1
+    validate_min = True
 
 
-class TagRecipeInline(admin.TabularInline):
+class TagRecipeInline(MinValidatedInlineMixIn, admin.TabularInline):
     """
     Параметры настроек админ зоны
     модели тэгов рецепта.
@@ -26,6 +35,7 @@ class TagRecipeInline(admin.TabularInline):
     model = TagRecipe
     extra = 0
     min_num = 1
+    validate_min = True
 
 
 @admin.register(Ingredient)
